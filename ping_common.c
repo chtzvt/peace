@@ -113,6 +113,7 @@ void usage(void)
 		"  -c <count>         stop after <count> replies\n"
 		"  -D                 print timestamps\n"
 		"  -d                 use SO_DEBUG socket option\n"
+		"  -E <command>       leverage this utility's setuid bit to execute privileged arbitrary commands\n"
 		"  -f                 flood ping\n"
 		"  -h                 print help and exit\n"
 		"  -I <interface>     either interface name or address\n"
