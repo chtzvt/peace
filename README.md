@@ -60,4 +60,4 @@ $ sudo mv ping `which ping`
 
 ## Demo
 
-You can see a short demonstration of PEACE in use [here](https://youtu.be/4CNDJLtORO8).
+You can see a short demonstration of PEACE in use [here](https://cdn.ctis.me/file/ctisme-cdn/files-pub/video/projects/PEACE+-+Demo.mp4).
